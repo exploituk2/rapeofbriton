@@ -6,11 +6,11 @@ import "leaflet/dist/leaflet.css";
 import type { NewsIncident } from "@/lib/types";
 
 const markerIcon = L.divIcon({
-  className: "",
-  html: '<span class="map-pin"></span>',
-  iconSize: [16, 16],
-  iconAnchor: [8, 8],
-  popupAnchor: [0, -10],
+  className: "map-marker",
+  html: '<span class="map-pin" aria-hidden="true"></span>',
+  iconSize: [22, 22],
+  iconAnchor: [11, 11],
+  popupAnchor: [0, -12],
 });
 
 type Props = {

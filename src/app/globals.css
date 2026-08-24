@@ -165,13 +165,22 @@ body {
   animation: rise-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+.map-marker.leaflet-div-icon {
+  background: transparent !important;
+  border: none !important;
+  width: 22px !important;
+  height: 22px !important;
+}
+
 .map-pin {
-  width: 16px;
-  height: 16px;
+  display: block;
+  width: 18px;
+  height: 18px;
+  margin: 2px;
   border-radius: 999px;
-  background: var(--accent);
-  border: 2px solid #fff;
-  box-shadow: 0 2px 8px rgba(16, 24, 32, 0.35);
+  background: #1f6f78;
+  border: 2.5px solid #fff;
+  box-shadow: 0 2px 8px rgba(16, 24, 32, 0.4);
 }
 
 /* Keep inputs at 16px on iOS to avoid auto-zoom */
