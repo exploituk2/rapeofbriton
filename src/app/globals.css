@@ -1,8 +1,16 @@
 @import "tailwindcss";
 
 :root {
-  --background: #d8d0c2;
-  --foreground: #1c1917;
+  --ink: #101820;
+  --ink-soft: #3d4a56;
+  --paper: #f4f7f8;
+  --panel: rgba(244, 247, 248, 0.88);
+  --line: rgba(16, 24, 32, 0.1);
+  --accent: #1f6f78;
+  --accent-strong: #15555c;
+  --danger: #9b2c2c;
+  --background: #dbe4e8;
+  --foreground: #101820;
 }
 
 @theme inline {
@@ -19,5 +27,81 @@ body {
 
 .leaflet-container {
   font: inherit;
-  background: #c5cfc8;
+  background: #cfd8dc;
+  width: 100%;
+  height: 100%;
+}
+
+.leaflet-control-attribution {
+  background: rgba(244, 247, 248, 0.75) !important;
+  font-size: 10px !important;
+  color: var(--ink-soft) !important;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  box-shadow: 0 8px 28px rgba(16, 24, 32, 0.14);
+  border: 1px solid var(--line);
+  padding: 0;
+}
+
+.leaflet-popup-content {
+  margin: 12px 14px;
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+.leaflet-popup-tip {
+  box-shadow: none;
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-panel {
+  from {
+    opacity: 0;
+    transform: translateX(-18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.anim-fade {
+  animation: fade-in 0.5s ease both;
+}
+
+.anim-panel {
+  animation: slide-panel 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.anim-rise {
+  animation: rise-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.map-pin {
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: var(--accent);
+  border: 2px solid #fff;
+  box-shadow: 0 2px 8px rgba(16, 24, 32, 0.35);
 }

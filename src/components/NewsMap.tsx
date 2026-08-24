@@ -1,19 +1,16 @@
 "use client";
 
-import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
+import { MapContainer, Marker, Popup, TileLayer, ZoomControl } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import type { NewsIncident } from "@/lib/types";
 
-const markerIcon = L.icon({
-  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  iconRetinaUrl:
-    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
+const markerIcon = L.divIcon({
+  className: "",
+  html: '<span class="map-pin"></span>',
+  iconSize: [16, 16],
+  iconAnchor: [8, 8],
+  popupAnchor: [0, -10],
 });
 
 type Props = {
@@ -32,12 +29,14 @@ export default function NewsMap({ incidents }: Props) {
       center={UK_CENTER}
       zoom={6}
       className="h-full w-full"
+      zoomControl={false}
       scrollWheelZoom
     >
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>'
+        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
       />
+      <ZoomControl position="bottomright" />
       {mapped.map((item) => (
         <Marker
           key={item.id}
@@ -45,8 +44,8 @@ export default function NewsMap({ incidents }: Props) {
           icon={markerIcon}
         >
           <Popup>
-            <div className="max-w-xs space-y-1">
-              <p className="text-[10px] uppercase tracking-wide text-stone-500">
+            <div className="max-w-[220px] space-y-1.5">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--ink-soft)]">
                 {item.source}
                 {item.locationLabel ? ` · ${item.locationLabel}` : ""}
               </p>
@@ -54,12 +53,14 @@ export default function NewsMap({ incidents }: Props) {
                 href={item.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-semibold text-stone-900 underline-offset-2 hover:underline"
+                className="block text-[15px] font-semibold leading-snug text-[var(--ink)] no-underline hover:text-[var(--accent)]"
               >
                 {item.title}
               </a>
               {item.summary ? (
-                <p className="text-sm text-stone-600">{item.summary}</p>
+                <p className="text-[13px] leading-relaxed text-[var(--ink-soft)]">
+                  {item.summary}
+                </p>
               ) : null}
             </div>
           </Popup>

@@ -1,13 +1,13 @@
-import { Fraunces, Source_Sans_3 } from "next/font/google";
+import { Bricolage_Grotesque, Figtree } from "next/font/google";
 import type { Metadata } from "next";
 import "./globals.css";
 
-const display = Fraunces({
+const display = Bricolage_Grotesque({
   variable: "--font-display",
   subsets: ["latin"],
 });
 
-const sans = Source_Sans_3({
+const sans = Figtree({
   variable: "--font-sans",
   subsets: ["latin"],
 });

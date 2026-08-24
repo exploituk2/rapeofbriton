@@ -96,7 +96,7 @@ export default function LocationModal({ incident, onClose, onSaved }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-[1000] flex items-center justify-center bg-stone-950/55 p-4"
+      className="anim-fade fixed inset-0 z-[1000] flex items-end justify-center bg-[rgba(16,24,32,0.45)] p-3 backdrop-blur-[2px] sm:items-center sm:p-4"
       role="presentation"
       onClick={onClose}
     >
@@ -104,19 +104,19 @@ export default function LocationModal({ incident, onClose, onSaved }: Props) {
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="w-full max-w-md border border-stone-300 bg-stone-50 p-5 shadow-[0_20px_60px_rgba(20,15,10,0.35)]"
+        className="anim-rise w-full max-w-md rounded-2xl border border-[var(--line)] bg-[var(--paper)] p-5 shadow-[0_24px_60px_rgba(16,24,32,0.22)]"
         onClick={(event) => event.stopPropagation()}
       >
         <h2
           id={titleId}
-          className="font-[family-name:var(--font-display)] text-2xl text-stone-900"
+          className="font-[family-name:var(--font-display)] text-2xl tracking-tight text-[var(--ink)]"
         >
           Add location
         </h2>
-        <p className="mt-1 text-sm text-stone-600">
-          No map pin was found for this story. Search for a UK place to pin it.
+        <p className="mt-1 text-sm text-[var(--ink-soft)]">
+          No map pin was found. Search a UK place to drop one.
         </p>
-        <p className="mt-3 line-clamp-2 text-sm font-medium text-stone-800">
+        <p className="mt-3 line-clamp-2 text-sm font-semibold text-[var(--ink)]">
           {incident.title}
         </p>
 
@@ -127,31 +127,34 @@ export default function LocationModal({ incident, onClose, onSaved }: Props) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="e.g. Manchester, Leeds, Cornwall"
-            className="min-w-0 flex-1 border border-stone-300 bg-white px-3 py-2 text-sm outline-none ring-stone-800 focus:ring-2"
+            className="min-w-0 flex-1 rounded-xl border border-[var(--line)] bg-white px-3.5 py-2.5 text-sm outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20"
           />
           <button
             type="submit"
             disabled={busy}
-            className="bg-stone-800 px-3 py-2 text-sm text-stone-50 hover:bg-stone-700 disabled:opacity-60"
+            className="rounded-xl bg-[var(--ink)] px-3.5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--ink-soft)] disabled:opacity-55"
           >
             Search
           </button>
         </form>
 
         {results.length > 0 ? (
-          <ul className="mt-3 max-h-40 divide-y divide-stone-200 overflow-y-auto border border-stone-200">
+          <ul className="mt-3 max-h-40 overflow-y-auto rounded-xl border border-[var(--line)] bg-white">
             {results.map((hit) => {
               const active =
                 selected?.lat === hit.lat && selected?.lng === hit.lng;
               return (
-                <li key={`${hit.lat}-${hit.lng}-${hit.label}`}>
+                <li
+                  key={`${hit.lat}-${hit.lng}-${hit.label}`}
+                  className="border-b border-[var(--line)] last:border-b-0"
+                >
                   <button
                     type="button"
                     onClick={() => setSelected(hit)}
-                    className={`w-full px-3 py-2 text-left text-sm ${
+                    className={`w-full px-3.5 py-2.5 text-left text-sm transition ${
                       active
-                        ? "bg-stone-900 text-stone-50"
-                        : "bg-white text-stone-700 hover:bg-stone-100"
+                        ? "bg-[var(--accent)] font-medium text-white"
+                        : "text-[var(--ink-soft)] hover:bg-[rgba(31,111,120,0.08)] hover:text-[var(--ink)]"
                     }`}
                   >
                     {hit.label}
@@ -163,7 +166,7 @@ export default function LocationModal({ incident, onClose, onSaved }: Props) {
         ) : null}
 
         {error ? (
-          <p className="mt-3 text-sm text-red-700" role="alert">
+          <p className="mt-3 text-sm text-[var(--danger)]" role="alert">
             {error}
           </p>
         ) : null}
@@ -172,7 +175,7 @@ export default function LocationModal({ incident, onClose, onSaved }: Props) {
           <button
             type="button"
             onClick={onClose}
-            className="px-3 py-2 text-sm text-stone-600 hover:text-stone-900"
+            className="rounded-xl px-3.5 py-2.5 text-sm font-medium text-[var(--ink-soft)] transition hover:text-[var(--ink)]"
           >
             Skip
           </button>
@@ -180,7 +183,7 @@ export default function LocationModal({ incident, onClose, onSaved }: Props) {
             type="button"
             onClick={() => void save()}
             disabled={busy || !selected}
-            className="bg-stone-900 px-4 py-2 text-sm font-medium text-stone-50 hover:bg-stone-700 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-xl bg-[var(--accent)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--accent-strong)] disabled:cursor-not-allowed disabled:opacity-55"
           >
             Save pin
           </button>

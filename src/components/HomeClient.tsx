@@ -8,8 +8,8 @@ import type { NewsIncident } from "@/lib/types";
 const NewsMap = dynamic(() => import("@/components/NewsMap"), {
   ssr: false,
   loading: () => (
-    <div className="flex h-full items-center justify-center bg-stone-200 text-stone-600">
-      Loading map…
+    <div className="flex h-full items-center justify-center bg-[#dbe4e8] text-[var(--ink-soft)]">
+      <div className="anim-rise text-sm tracking-wide">Loading map…</div>
     </div>
   ),
 });
@@ -84,33 +84,42 @@ export default function HomeClient() {
     .length;
 
   return (
-    <div className="flex min-h-screen flex-col bg-[radial-gradient(ellipse_at_top,_#e8dfd0_0%,_#cfc4b0_45%,_#9ea8a3_100%)] text-stone-900">
-      <header className="border-b border-stone-800/15 bg-stone-950/85 px-4 py-4 text-stone-50 backdrop-blur md:px-8">
-        <div className="mx-auto flex max-w-7xl flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div>
-            <p className="font-[family-name:var(--font-display)] text-3xl tracking-tight md:text-4xl">
-              Rape of Briton
-            </p>
-            <p className="mt-1 max-w-xl text-sm text-stone-300">
-              Paste a BBC, GB News, or other news URL. The bot extracts the story
-              and places it on the OpenStreetMap view when a UK location is found.
-            </p>
-          </div>
-          <p className="text-xs uppercase tracking-[0.2em] text-stone-400">
-            {mappedCount} mapped · {incidents.length} total
-          </p>
-        </div>
-      </header>
+    <div className="relative h-svh w-full overflow-hidden bg-[#dbe4e8] text-[var(--ink)]">
+      <div className="absolute inset-0 anim-fade">
+        <NewsMap incidents={incidents} />
+      </div>
 
-      <main className="mx-auto grid w-full max-w-7xl flex-1 gap-4 p-4 md:grid-cols-[340px_1fr] md:gap-6 md:p-8">
-        <aside className="flex flex-col gap-4">
-          <form
-            onSubmit={onSubmit}
-            className="space-y-3 border border-stone-800/20 bg-stone-50/90 p-4 shadow-[0_12px_40px_rgba(40,30,20,0.12)]"
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_20%_0%,rgba(255,255,255,0.35),transparent_45%),linear-gradient(90deg,rgba(219,228,232,0.55)_0%,rgba(219,228,232,0.08)_42%,transparent_58%)]" />
+
+      <aside className="anim-panel pointer-events-auto absolute inset-x-3 top-3 z-[500] flex max-h-[calc(100svh-1.5rem)] w-auto flex-col overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--panel)] shadow-[0_18px_50px_rgba(16,24,32,0.12)] backdrop-blur-xl md:inset-x-auto md:left-5 md:top-5 md:w-[380px] md:max-h-[calc(100svh-2.5rem)]">
+        <header className="shrink-0 border-b border-[var(--line)] px-5 pb-4 pt-5">
+          <p className="font-[family-name:var(--font-display)] text-[1.85rem] leading-none tracking-tight text-[var(--ink)] md:text-[2.15rem]">
+            Rape of Briton
+          </p>
+          <p className="mt-2 text-sm leading-relaxed text-[var(--ink-soft)]">
+            Paste a news URL. Stories land on the map when a UK place is found.
+          </p>
+          <div className="mt-4 flex items-center gap-3 text-xs font-medium tracking-wide text-[var(--ink-soft)]">
+            <span className="inline-flex items-center gap-1.5">
+              <span className="inline-block h-2 w-2 rounded-full bg-[var(--accent)]" />
+              {mappedCount} mapped
+            </span>
+            <span className="h-3 w-px bg-[var(--line)]" />
+            <span>{incidents.length} total</span>
+          </div>
+        </header>
+
+        <form
+          onSubmit={onSubmit}
+          className="shrink-0 space-y-3 border-b border-[var(--line)] px-5 py-4"
+        >
+          <label
+            className="block text-xs font-semibold uppercase tracking-[0.14em] text-[var(--ink-soft)]"
+            htmlFor="news-url"
           >
-            <label className="block text-sm font-medium" htmlFor="news-url">
-              News article URL
-            </label>
+            Article URL
+          </label>
+          <div className="flex gap-2">
             <input
               id="news-url"
               type="url"
@@ -118,71 +127,75 @@ export default function HomeClient() {
               placeholder="https://www.bbc.co.uk/news/..."
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              className="w-full border border-stone-300 bg-white px-3 py-2 text-sm outline-none ring-stone-800 focus:ring-2"
+              className="min-w-0 flex-1 rounded-xl border border-[var(--line)] bg-white/80 px-3.5 py-2.5 text-sm outline-none transition placeholder:text-[var(--ink-soft)]/60 focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20"
             />
             <button
               type="submit"
               disabled={busy}
-              className="w-full bg-stone-900 px-4 py-2.5 text-sm font-medium text-stone-50 transition hover:bg-stone-700 disabled:cursor-not-allowed disabled:opacity-60"
+              className="shrink-0 rounded-xl bg-[var(--accent)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--accent-strong)] disabled:cursor-not-allowed disabled:opacity-55"
             >
-              {busy ? "Adding…" : "Add to map"}
+              {busy ? "…" : "Add"}
             </button>
-            {status ? (
-              <p className="text-sm text-stone-600" role="status">
-                {status}
-              </p>
-            ) : null}
-          </form>
+          </div>
+          {status ? (
+            <p
+              className="anim-rise text-sm leading-snug text-[var(--ink-soft)]"
+              role="status"
+            >
+              {status}
+            </p>
+          ) : null}
+        </form>
 
-          <section className="flex-1 overflow-hidden border border-stone-800/20 bg-stone-50/90">
-            <div className="border-b border-stone-200 px-4 py-3 text-sm font-medium">
-              Recent stories
-            </div>
-            <ul className="max-h-[50vh] divide-y divide-stone-200 overflow-y-auto md:max-h-[calc(100vh-280px)]">
-              {incidents.length === 0 ? (
-                <li className="px-4 py-6 text-sm text-stone-500">
-                  No stories yet. Paste a URL above (Python bot must be running).
-                </li>
-              ) : (
-                incidents.map((item) => {
-                  const hasPin = item.lat != null && item.lng != null;
-                  return (
-                    <li key={item.id} className="px-4 py-3">
-                      <p className="text-[10px] uppercase tracking-wide text-stone-500">
-                        {item.source}
-                        {item.locationLabel
-                          ? ` · ${item.locationLabel}`
-                          : " · no pin"}
-                      </p>
-                      <a
-                        href={item.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="mt-0.5 block text-sm font-medium leading-snug hover:underline"
+        <section className="flex min-h-0 flex-1 flex-col">
+          <div className="shrink-0 px-5 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--ink-soft)]">
+            Recent stories
+          </div>
+          <ul className="min-h-0 flex-1 overflow-y-auto px-2 pb-3">
+            {incidents.length === 0 ? (
+              <li className="px-3 py-8 text-sm leading-relaxed text-[var(--ink-soft)]">
+                Nothing here yet. Paste a BBC or GB News URL above — keep the
+                Python bot running.
+              </li>
+            ) : (
+              incidents.map((item, index) => {
+                const hasPin = item.lat != null && item.lng != null;
+                return (
+                  <li
+                    key={item.id}
+                    className="anim-rise rounded-xl px-3 py-3 transition hover:bg-white/55"
+                    style={{ animationDelay: `${Math.min(index, 8) * 40}ms` }}
+                  >
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--ink-soft)]">
+                      {item.source}
+                      {item.locationLabel
+                        ? ` · ${item.locationLabel}`
+                        : " · no pin"}
+                    </p>
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-1 block text-[15px] font-semibold leading-snug text-[var(--ink)] transition hover:text-[var(--accent)]"
+                    >
+                      {item.title}
+                    </a>
+                    {!hasPin ? (
+                      <button
+                        type="button"
+                        onClick={() => setLocationTarget(item)}
+                        className="mt-2 text-xs font-semibold text-[var(--accent)] transition hover:text-[var(--accent-strong)]"
                       >
-                        {item.title}
-                      </a>
-                      {!hasPin ? (
-                        <button
-                          type="button"
-                          onClick={() => setLocationTarget(item)}
-                          className="mt-2 text-xs font-medium text-stone-700 underline underline-offset-2 hover:text-stone-900"
-                        >
-                          Add location
-                        </button>
-                      ) : null}
-                    </li>
-                  );
-                })
-              )}
-            </ul>
-          </section>
-        </aside>
-
-        <section className="min-h-[55vh] overflow-hidden border border-stone-800/25 shadow-[0_16px_50px_rgba(40,30,20,0.18)] md:min-h-[calc(100vh-160px)]">
-          <NewsMap incidents={incidents} />
+                        Add location
+                      </button>
+                    ) : null}
+                  </li>
+                );
+              })
+            )}
+          </ul>
         </section>
-      </main>
+      </aside>
 
       {locationTarget ? (
         <LocationModal
