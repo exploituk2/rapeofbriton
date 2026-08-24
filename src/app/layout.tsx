@@ -1,5 +1,5 @@
 import { Bricolage_Grotesque, Figtree } from "next/font/google";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 const display = Bricolage_Grotesque({
@@ -18,6 +18,13 @@ export const metadata: Metadata = {
     "Map UK news stories from pasted article URLs using OpenStreetMap.",
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#dbe4e8",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -25,7 +32,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${display.variable} ${sans.variable} h-full`}>
-      <body className="min-h-full font-[family-name:var(--font-sans)] antialiased">
+      <body className="min-h-full overflow-hidden font-[family-name:var(--font-sans)] antialiased">
         {children}
       </body>
     </html>

@@ -96,7 +96,7 @@ export default function LocationModal({ incident, onClose, onSaved }: Props) {
 
   return (
     <div
-      className="anim-fade fixed inset-0 z-[1000] flex items-end justify-center bg-[rgba(16,24,32,0.45)] p-3 backdrop-blur-[2px] sm:items-center sm:p-4"
+      className="anim-fade fixed inset-0 z-[1000] flex items-end justify-center bg-[rgba(16,24,32,0.45)] p-0 backdrop-blur-[2px] sm:items-center sm:p-4"
       role="presentation"
       onClick={onClose}
     >
@@ -104,9 +104,12 @@ export default function LocationModal({ incident, onClose, onSaved }: Props) {
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="anim-rise w-full max-w-md rounded-2xl border border-[var(--line)] bg-[var(--paper)] p-5 shadow-[0_24px_60px_rgba(16,24,32,0.22)]"
+        className="anim-rise max-h-[min(92dvh,720px)] w-full overflow-y-auto rounded-t-3xl border border-[var(--line)] border-b-0 bg-[var(--paper)] p-5 pb-[calc(1.25rem+var(--safe-bottom))] shadow-[0_24px_60px_rgba(16,24,32,0.22)] sm:max-h-[85dvh] sm:max-w-md sm:rounded-2xl sm:border-b sm:pb-5"
         onClick={(event) => event.stopPropagation()}
       >
+        <div className="mb-3 flex justify-center sm:hidden">
+          <span className="h-1 w-10 rounded-full bg-[rgba(16,24,32,0.22)]" />
+        </div>
         <h2
           id={titleId}
           className="font-[family-name:var(--font-display)] text-2xl tracking-tight text-[var(--ink)]"
@@ -120,26 +123,26 @@ export default function LocationModal({ incident, onClose, onSaved }: Props) {
           {incident.title}
         </p>
 
-        <form onSubmit={search} className="mt-4 flex gap-2">
+        <form onSubmit={search} className="mt-4 flex flex-col gap-2 sm:flex-row">
           <input
             autoFocus
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="e.g. Manchester, Leeds, Cornwall"
-            className="min-w-0 flex-1 rounded-xl border border-[var(--line)] bg-white px-3.5 py-2.5 text-sm outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20"
+            className="min-h-11 min-w-0 flex-1 rounded-xl border border-[var(--line)] bg-white px-3.5 py-2.5 text-base outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20 sm:text-sm"
           />
           <button
             type="submit"
             disabled={busy}
-            className="rounded-xl bg-[var(--ink)] px-3.5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--ink-soft)] disabled:opacity-55"
+            className="min-h-11 rounded-xl bg-[var(--ink)] px-3.5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--ink-soft)] disabled:opacity-55"
           >
             Search
           </button>
         </form>
 
         {results.length > 0 ? (
-          <ul className="mt-3 max-h-40 overflow-y-auto rounded-xl border border-[var(--line)] bg-white">
+          <ul className="mt-3 max-h-[35dvh] overflow-y-auto rounded-xl border border-[var(--line)] bg-white sm:max-h-40">
             {results.map((hit) => {
               const active =
                 selected?.lat === hit.lat && selected?.lng === hit.lng;
@@ -151,7 +154,7 @@ export default function LocationModal({ incident, onClose, onSaved }: Props) {
                   <button
                     type="button"
                     onClick={() => setSelected(hit)}
-                    className={`w-full px-3.5 py-2.5 text-left text-sm transition ${
+                    className={`min-h-11 w-full px-3.5 py-2.5 text-left text-sm transition ${
                       active
                         ? "bg-[var(--accent)] font-medium text-white"
                         : "text-[var(--ink-soft)] hover:bg-[rgba(31,111,120,0.08)] hover:text-[var(--ink)]"
@@ -171,11 +174,11 @@ export default function LocationModal({ incident, onClose, onSaved }: Props) {
           </p>
         ) : null}
 
-        <div className="mt-5 flex justify-end gap-2">
+        <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl px-3.5 py-2.5 text-sm font-medium text-[var(--ink-soft)] transition hover:text-[var(--ink)]"
+            className="min-h-11 rounded-xl px-3.5 py-2.5 text-sm font-medium text-[var(--ink-soft)] transition hover:text-[var(--ink)]"
           >
             Skip
           </button>
@@ -183,7 +186,7 @@ export default function LocationModal({ incident, onClose, onSaved }: Props) {
             type="button"
             onClick={() => void save()}
             disabled={busy || !selected}
-            className="rounded-xl bg-[var(--accent)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--accent-strong)] disabled:cursor-not-allowed disabled:opacity-55"
+            className="min-h-11 rounded-xl bg-[var(--accent)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--accent-strong)] disabled:cursor-not-allowed disabled:opacity-55"
           >
             Save pin
           </button>

@@ -1,7 +1,14 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useCallback, useEffect, useState, type FormEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type FormEvent,
+} from "react";
 import LocationModal from "@/components/LocationModal";
 import type { NewsIncident } from "@/lib/types";
 
@@ -22,6 +29,8 @@ export default function HomeClient() {
   const [locationTarget, setLocationTarget] = useState<NewsIncident | null>(
     null,
   );
+  const [sheetExpanded, setSheetExpanded] = useState(false);
+  const sheetRef = useRef<HTMLElement | null>(null);
 
   const loadIncidents = useCallback(async () => {
     const res = await fetch("/api/incidents", { cache: "no-store" });
@@ -33,6 +42,27 @@ export default function HomeClient() {
   useEffect(() => {
     void loadIncidents();
   }, [loadIncidents]);
+
+  useEffect(() => {
+    const node = sheetRef.current;
+    if (!node || typeof ResizeObserver === "undefined") return;
+
+    const syncOffset = () => {
+      const height = Math.ceil(node.getBoundingClientRect().height);
+      document.documentElement.style.setProperty(
+        "--sheet-offset",
+        `${height}px`,
+      );
+    };
+
+    syncOffset();
+    const observer = new ResizeObserver(syncOffset);
+    observer.observe(node);
+    return () => {
+      observer.disconnect();
+      document.documentElement.style.removeProperty("--sheet-offset");
+    };
+  }, [sheetExpanded, status, incidents.length]);
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
@@ -64,6 +94,7 @@ export default function HomeClient() {
         setLocationTarget(incident);
       } else {
         setStatus(`Added: ${incident.title}`);
+        setSheetExpanded(true);
       }
     } catch {
       setStatus("Request failed");
@@ -78,40 +109,80 @@ export default function HomeClient() {
     );
     setLocationTarget(null);
     setStatus(`Pinned: ${updated.locationLabel ?? updated.title}`);
+    setSheetExpanded(true);
   }
 
   const mappedCount = incidents.filter((i) => i.lat != null && i.lng != null)
     .length;
 
   return (
-    <div className="relative h-svh w-full overflow-hidden bg-[#dbe4e8] text-[var(--ink)]">
+    <div className="relative h-dvh w-full overflow-hidden bg-[#dbe4e8] text-[var(--ink)]">
       <div className="absolute inset-0 anim-fade">
         <NewsMap incidents={incidents} />
       </div>
 
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_20%_0%,rgba(255,255,255,0.35),transparent_45%),linear-gradient(90deg,rgba(219,228,232,0.55)_0%,rgba(219,228,232,0.08)_42%,transparent_58%)]" />
+      <div
+        className="pointer-events-none absolute inset-0 hidden bg-[radial-gradient(ellipse_at_20%_0%,rgba(255,255,255,0.35),transparent_45%),linear-gradient(90deg,rgba(219,228,232,0.55)_0%,rgba(219,228,232,0.08)_42%,transparent_58%)] md:block"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[rgba(219,228,232,0.55)] to-transparent md:hidden"
+        aria-hidden
+      />
 
-      <aside className="anim-panel pointer-events-auto absolute inset-x-3 top-3 z-[500] flex max-h-[calc(100svh-1.5rem)] w-auto flex-col overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--panel)] shadow-[0_18px_50px_rgba(16,24,32,0.12)] backdrop-blur-xl md:inset-x-auto md:left-5 md:top-5 md:w-[380px] md:max-h-[calc(100svh-2.5rem)]">
-        <header className="shrink-0 border-b border-[var(--line)] px-5 pb-4 pt-5">
-          <p className="font-[family-name:var(--font-display)] text-[1.85rem] leading-none tracking-tight text-[var(--ink)] md:text-[2.15rem]">
-            Rape of Briton
-          </p>
-          <p className="mt-2 text-sm leading-relaxed text-[var(--ink-soft)]">
-            Paste a news URL. Stories land on the map when a UK place is found.
-          </p>
-          <div className="mt-4 flex items-center gap-3 text-xs font-medium tracking-wide text-[var(--ink-soft)]">
+      <aside
+        ref={sheetRef}
+        className="anim-panel pointer-events-auto absolute inset-x-0 bottom-0 z-[500] flex max-h-[min(78dvh,720px)] w-full flex-col overflow-hidden rounded-t-3xl border border-[var(--line)] border-b-0 bg-[var(--panel)] shadow-[0_-12px_40px_rgba(16,24,32,0.14)] backdrop-blur-xl md:inset-x-auto md:bottom-auto md:left-5 md:top-5 md:max-h-[calc(100dvh-2.5rem)] md:w-[min(380px,calc(100vw-2.5rem))] md:rounded-2xl md:border-b md:shadow-[0_18px_50px_rgba(16,24,32,0.12)]"
+        style={
+          {
+            paddingBottom: "var(--safe-bottom)",
+          } as CSSProperties
+        }
+      >
+        <div className="flex shrink-0 justify-center pt-2 md:hidden">
+          <button
+            type="button"
+            aria-expanded={sheetExpanded}
+            aria-label={sheetExpanded ? "Collapse panel" : "Expand panel"}
+            onClick={() => setSheetExpanded((open) => !open)}
+            className="flex h-8 w-full items-center justify-center"
+          >
+            <span className="h-1 w-10 rounded-full bg-[rgba(16,24,32,0.22)]" />
+          </button>
+        </div>
+
+        <header className="shrink-0 border-b border-[var(--line)] px-4 pb-3 pt-1 sm:px-5 md:pb-4 md:pt-5">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="font-[family-name:var(--font-display)] text-[1.55rem] leading-none tracking-tight text-[var(--ink)] sm:text-[1.85rem] md:text-[2.15rem]">
+                Rape of Briton
+              </p>
+              <p className="mt-1.5 text-sm leading-relaxed text-[var(--ink-soft)] sm:mt-2">
+                Paste a news URL. Stories land on the map when a UK place is
+                found.
+              </p>
+            </div>
+            <button
+              type="button"
+              className="mt-1 inline-flex min-h-11 shrink-0 items-center rounded-xl border border-[var(--line)] bg-white/70 px-3 text-xs font-semibold text-[var(--ink-soft)] md:hidden"
+              onClick={() => setSheetExpanded((open) => !open)}
+            >
+              {sheetExpanded ? "Map" : "Stories"}
+            </button>
+          </div>
+          <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-medium tracking-wide text-[var(--ink-soft)] sm:mt-4">
             <span className="inline-flex items-center gap-1.5">
               <span className="inline-block h-2 w-2 rounded-full bg-[var(--accent)]" />
               {mappedCount} mapped
             </span>
-            <span className="h-3 w-px bg-[var(--line)]" />
+            <span className="hidden h-3 w-px bg-[var(--line)] sm:block" />
             <span>{incidents.length} total</span>
           </div>
         </header>
 
         <form
           onSubmit={onSubmit}
-          className="shrink-0 space-y-3 border-b border-[var(--line)] px-5 py-4"
+          className="shrink-0 space-y-3 border-b border-[var(--line)] px-4 py-3 sm:px-5 sm:py-4"
         >
           <label
             className="block text-xs font-semibold uppercase tracking-[0.14em] text-[var(--ink-soft)]"
@@ -119,22 +190,25 @@ export default function HomeClient() {
           >
             Article URL
           </label>
-          <div className="flex gap-2">
+          <div className="flex flex-col gap-2 sm:flex-row">
             <input
               id="news-url"
               type="url"
+              inputMode="url"
+              autoCapitalize="off"
+              autoCorrect="off"
               required
               placeholder="https://www.bbc.co.uk/news/..."
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              className="min-w-0 flex-1 rounded-xl border border-[var(--line)] bg-white/80 px-3.5 py-2.5 text-sm outline-none transition placeholder:text-[var(--ink-soft)]/60 focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20"
+              className="min-h-11 min-w-0 flex-1 rounded-xl border border-[var(--line)] bg-white/80 px-3.5 py-2.5 text-base outline-none transition placeholder:text-[var(--ink-soft)]/60 focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20 sm:text-sm"
             />
             <button
               type="submit"
               disabled={busy}
-              className="shrink-0 rounded-xl bg-[var(--accent)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--accent-strong)] disabled:cursor-not-allowed disabled:opacity-55"
+              className="min-h-11 shrink-0 rounded-xl bg-[var(--accent)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--accent-strong)] disabled:cursor-not-allowed disabled:opacity-55 sm:w-auto"
             >
-              {busy ? "…" : "Add"}
+              {busy ? "Adding…" : "Add"}
             </button>
           </div>
           {status ? (
@@ -147,13 +221,26 @@ export default function HomeClient() {
           ) : null}
         </form>
 
-        <section className="flex min-h-0 flex-1 flex-col">
-          <div className="shrink-0 px-5 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--ink-soft)]">
-            Recent stories
+        <section
+          className={`flex min-h-0 flex-col ${
+            sheetExpanded ? "flex-1" : "hidden md:flex md:flex-1"
+          }`}
+        >
+          <div className="flex shrink-0 items-center justify-between gap-2 px-4 py-3 sm:px-5">
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--ink-soft)]">
+              Recent stories
+            </div>
+            <button
+              type="button"
+              className="text-xs font-semibold text-[var(--accent)] md:hidden"
+              onClick={() => setSheetExpanded(false)}
+            >
+              Show map
+            </button>
           </div>
-          <ul className="min-h-0 flex-1 overflow-y-auto px-2 pb-3">
+          <ul className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-2 pb-3 [-webkit-overflow-scrolling:touch]">
             {incidents.length === 0 ? (
-              <li className="px-3 py-8 text-sm leading-relaxed text-[var(--ink-soft)]">
+              <li className="px-3 py-6 text-sm leading-relaxed text-[var(--ink-soft)] sm:py-8">
                 Nothing here yet. Paste a BBC or GB News URL above — keep the
                 Python bot running.
               </li>
@@ -163,7 +250,7 @@ export default function HomeClient() {
                 return (
                   <li
                     key={item.id}
-                    className="anim-rise rounded-xl px-3 py-3 transition hover:bg-white/55"
+                    className="anim-rise rounded-xl px-3 py-3 transition hover:bg-white/55 active:bg-white/70"
                     style={{ animationDelay: `${Math.min(index, 8) * 40}ms` }}
                   >
                     <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--ink-soft)]">
@@ -184,7 +271,7 @@ export default function HomeClient() {
                       <button
                         type="button"
                         onClick={() => setLocationTarget(item)}
-                        className="mt-2 text-xs font-semibold text-[var(--accent)] transition hover:text-[var(--accent-strong)]"
+                        className="mt-2 min-h-10 text-xs font-semibold text-[var(--accent)] transition hover:text-[var(--accent-strong)]"
                       >
                         Add location
                       </button>
@@ -195,6 +282,18 @@ export default function HomeClient() {
             )}
           </ul>
         </section>
+
+        {!sheetExpanded ? (
+          <div className="shrink-0 px-4 pb-3 pt-1 md:hidden">
+            <button
+              type="button"
+              onClick={() => setSheetExpanded(true)}
+              className="flex min-h-11 w-full items-center justify-center rounded-xl border border-[var(--line)] bg-white/70 text-sm font-semibold text-[var(--ink)]"
+            >
+              View stories ({incidents.length})
+            </button>
+          </div>
+        ) : null}
       </aside>
 
       {locationTarget ? (
