@@ -1,0 +1,38 @@
+[
+  {
+    "id": "88c61651-a3fb-47a0-938e-23a6c81c8148",
+    "url": "https://www.gbnews.com/news/london-news-eritrean-man-raped-pensioner-st-johns-church-harrow",
+    "source": "GB News",
+    "title": "'Dangerous' Eritrean man who raped pensioner outside church entered Britain illegally",
+    "summary": "Desalagne is described as a 'dangerous offender' and is due to be sentenced in the autumn",
+    "locationLabel": "Harrow",
+    "lat": 51.5968271,
+    "lng": -0.3373046,
+    "publishedAt": "2026-08-16T20:59:39+00:00",
+    "createdAt": "2026-08-24T22:48:12.960654+00:00"
+  },
+  {
+    "id": "24aae95b-3221-4e07-9257-6331309e6dba",
+    "url": "https://www.dailymail.com/news/article-16067151/Two-Afghan-migrants-raped-assaulted-14-year-old-girl-train-Kent-London.html?ns_mchannel=rss&ns_campaign=1490&ito=social-twitter_mailonline",
+    "source": "dailymail.com",
+    "title": "Two Afghan migrants 'raped and assaulted a 14-year-old girl'",
+    "summary": "Baryalai Rahimi, 25, and Mirebadurahman Sadat, 29, allegedly attacked the teenager on a service from Sturry to London Bridge on February 5.",
+    "locationLabel": "London",
+    "lat": 51.5074456,
+    "lng": -0.1277653,
+    "publishedAt": "2026-08-20T14:48:30+0100",
+    "createdAt": "2026-08-24T22:43:20.568410+00:00"
+  },
+  {
+    "id": "37464cd8-ac33-406b-89b0-8fcadeb24abe",
+    "url": "https://www.bbc.co.uk/news/articles/cn8ml15px25o",
+    "source": "BBC",
+    "title": "Man charged with rape of girl, 17, in Manchester city centre",
+    "summary": "Abdul Shinwari, 24, has been charged with raping a 17-year-old girl near Piccadilly Gardens.",
+    "locationLabel": "Manchester",
+    "lat": 53.4424618,
+    "lng": -2.2324547,
+    "publishedAt": null,
+    "createdAt": "2026-08-24T22:42:30.885746+00:00"
+  }
+]
