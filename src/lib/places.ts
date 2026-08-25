@@ -29,6 +29,8 @@ export const KNOWN_PLACES: Record<
   cambridge: { label: "Cambridge", lat: 52.2053, lng: 0.1218 },
   harrow: { label: "Harrow", lat: 51.5783, lng: -0.3346 },
   dundee: { label: "Dundee", lat: 56.462, lng: -2.9707 },
+  winsford: { label: "Winsford", lat: 53.1904, lng: -2.5237 },
+  cheshire: { label: "Cheshire", lat: 53.208, lng: -2.444 },
   "northern ireland": {
     label: "Northern Ireland",
     lat: 54.7877,
