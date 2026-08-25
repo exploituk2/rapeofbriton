@@ -51,7 +51,7 @@ export default function LocationModal({ incident, onClose, onSaved }: Props) {
       const hits = data as GeocodeHit[];
       setResults(hits);
       if (hits.length === 0) {
-        setError("No UK places found. Try a town or city name.");
+        setError("No places found in the UK or Ireland. Try a town or city name.");
       } else {
         setSelected(hits[0]);
       }
@@ -117,7 +117,7 @@ export default function LocationModal({ incident, onClose, onSaved }: Props) {
           Add location
         </h2>
         <p className="mt-1 text-sm text-[var(--ink-soft)]">
-          No map pin was found. Search a UK place to drop one.
+          No map pin was found. Search a UK or Ireland place to drop one.
         </p>
         <p className="mt-3 line-clamp-2 text-sm font-semibold text-[var(--ink)]">
           {incident.title}
@@ -129,7 +129,7 @@ export default function LocationModal({ incident, onClose, onSaved }: Props) {
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="e.g. Manchester, Leeds, Cornwall"
+            placeholder="e.g. Dublin, Manchester, Cork"
             className="min-h-11 min-w-0 flex-1 rounded-xl border border-[var(--line)] bg-white px-3.5 py-2.5 text-base outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20 sm:text-sm"
           />
           <button

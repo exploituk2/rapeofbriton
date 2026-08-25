@@ -158,8 +158,8 @@ export default function HomeClient() {
                 Rape of Briton
               </p>
               <p className="mt-1.5 text-sm leading-relaxed text-[var(--ink-soft)] sm:mt-2">
-                Paste a news URL. Stories land on the map when a UK place is
-                found.
+                Paste a news URL. Stories land on the map when a UK or Ireland
+                place is found.
               </p>
             </div>
             <button

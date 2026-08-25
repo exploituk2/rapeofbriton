@@ -10,11 +10,12 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "q is required" }, { status: 400 });
   }
 
+  // Search UK (gb) and Ireland (ie) — do not force ", United Kingdom" so Irish places resolve.
   const params = new URLSearchParams({
-    q: `${q}, United Kingdom`,
+    q,
     format: "json",
-    limit: "5",
-    countrycodes: "gb",
+    limit: "8",
+    countrycodes: "gb,ie",
   });
 
   const res = await fetch(

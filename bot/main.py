@@ -22,8 +22,8 @@ app.add_middleware(
 
 USER_AGENT = "RapeOfBritonBot/0.1 (+local-dev; news-map ingest)"
 
-# Common UK places to look for in titles/summaries (longest first for matching).
-UK_PLACES = sorted(
+# Common UK + Ireland places to look for in titles/summaries (longest first).
+KNOWN_PLACES = sorted(
     {
         "Aberdeen",
         "Belfast",
@@ -36,20 +36,25 @@ UK_PLACES = sorted(
         "Bristol",
         "Cambridge",
         "Cardiff",
+        "Cork",
         "Coventry",
         "Derby",
         "Derry",
         "Doncaster",
+        "Dublin",
         "Dundee",
         "Edinburgh",
         "Exeter",
+        "Galway",
         "Glasgow",
         "Gloucester",
         "Huddersfield",
         "Hull",
         "Ipswich",
+        "Kilkenny",
         "Leeds",
         "Leicester",
+        "Limerick",
         "Liverpool",
         "London",
         "Luton",
@@ -77,6 +82,7 @@ UK_PLACES = sorted(
         "Sunderland",
         "Swansea",
         "Swindon",
+        "Waterford",
         "Walsall",
         "Warrington",
         "Watford",
@@ -97,6 +103,10 @@ UK_PLACES = sorted(
         "Wales",
         "Scotland",
         "Northern Ireland",
+        "Ireland",
+        "County Cork",
+        "County Dublin",
+        "County Galway",
     },
     key=len,
     reverse=True,
@@ -192,18 +202,18 @@ def extract_article(soup: BeautifulSoup) -> tuple[str, str, str | None]:
 
 
 def find_place(text: str) -> str | None:
-    for place in UK_PLACES:
+    for place in KNOWN_PLACES:
         if re.search(rf"\b{re.escape(place)}\b", text, flags=re.IGNORECASE):
             return place
     return None
 
 
-async def geocode_uk(place: str) -> tuple[float, float] | None:
+async def geocode_place(place: str) -> tuple[float, float] | None:
     params = {
-        "q": f"{place}, United Kingdom",
+        "q": place,
         "format": "json",
         "limit": 1,
-        "countrycodes": "gb",
+        "countrycodes": "gb,ie",
     }
     headers = {"User-Agent": USER_AGENT}
     async with httpx.AsyncClient(timeout=20.0, headers=headers) as client:
@@ -255,7 +265,7 @@ async def ingest(payload: IngestRequest):
 
     lat = lng = None
     if place:
-        coords = await geocode_uk(place)
+        coords = await geocode_place(place)
         if coords:
             lat, lng = coords
 
