@@ -1,7 +1,0 @@
-{
-  "functions": {
-    "src/app/api/ingest/route.ts": {
-      "maxDuration": 60
-    }
-  }
-}
