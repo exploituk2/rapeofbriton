@@ -43,7 +43,12 @@ export async function POST(request: Request) {
     );
   }
 
-  const incident = payload as NewsIncident;
+  const incident = {
+    ...(payload as NewsIncident),
+    peopleInvolved: Array.isArray(payload.peopleInvolved)
+      ? payload.peopleInvolved
+      : [],
+  } as NewsIncident;
   const saved = await upsertIncident(incident);
   return NextResponse.json(saved, { status: 201 });
 }

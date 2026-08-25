@@ -23,6 +23,7 @@ export async function POST(request: Request) {
     source: body.source ?? new URL(body.url).hostname.replace(/^www\./, ""),
     title: body.title,
     summary: body.summary ?? "",
+    peopleInvolved: body.peopleInvolved ?? [],
     locationLabel: body.locationLabel ?? null,
     lat: body.lat ?? null,
     lng: body.lng ?? null,

@@ -123,6 +123,7 @@ class IncidentOut(BaseModel):
     source: str
     title: str
     summary: str
+    peopleInvolved: list[str]
     locationLabel: str | None
     lat: float | None
     lng: float | None
@@ -162,7 +163,7 @@ def extract_meta(soup: BeautifulSoup, *keys: str) -> str:
     return ""
 
 
-def extract_article(soup: BeautifulSoup) -> tuple[str, str, str | None]:
+def extract_article(soup: BeautifulSoup) -> tuple[str, str, str | None, str]:
     title = (
         extract_meta(soup, "og:title", "twitter:title")
         or clean_text(soup.title.string if soup.title else "")
@@ -187,18 +188,120 @@ def extract_article(soup: BeautifulSoup) -> tuple[str, str, str | None]:
         "date",
     ) or None
 
-    # Prefer a short body snippet only for location hints (not stored as full text).
     paragraphs = [
         clean_text(p.get_text(" ", strip=True))
-        for p in soup.select("article p, [data-component='text-block'] p, .article-body p, main p")
+        for p in soup.select(
+            "article p, [data-component='text-block'] p, .article-body p, "
+            "main p, .article__body p, [itemprop='articleBody'] p"
+        )
         if clean_text(p.get_text(" ", strip=True))
     ]
+    body_text = " ".join(paragraphs[:12])
     body_hint = " ".join(paragraphs[:4])
 
     if not summary and body_hint:
         summary = body_hint[:280]
 
-    return title, summary[:400], published
+    return title, summary[:400], published, body_text
+
+
+NAME_TOKEN = r"[A-Z][a-z]+(?:['’][A-Z]?[a-z]+)?(?:-[A-Z][a-z]+)?"
+PERSON_NAME = rf"{NAME_TOKEN}(?:\s+{NAME_TOKEN}){{1,3}}"
+
+NAME_STOPWORDS = {
+    "British",
+    "Crown",
+    "Court",
+    "Police",
+    "Force",
+    "News",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday",
+    "January",
+    "February",
+    "March",
+    "April",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+    "United",
+    "Kingdom",
+    "Northern",
+    "Ireland",
+    "Great",
+    "Britain",
+    "Met",
+    "Metropolitan",
+    "Detective",
+    "Constable",
+    "Inspector",
+    "Sergeant",
+    "Judge",
+    "Justice",
+    "Lord",
+    "Lady",
+    "Sir",
+    "Dame",
+    "Home",
+    "Office",
+    "Crown Prosecution",
+    "High Court",
+    "Crown Court",
+    "Magistrates",
+    "Piccadilly",
+    "Gardens",
+}
+
+
+def _looks_like_person(name: str) -> bool:
+    parts = name.split()
+    if len(parts) < 2 or len(parts) > 4:
+        return False
+    if any(part in NAME_STOPWORDS for part in parts):
+        return False
+    if name in KNOWN_PLACES:
+        return False
+    # Reject if any token is a known place on its own (London Bridge style noise).
+    if any(part in KNOWN_PLACES for part in parts):
+        return False
+    return True
+
+
+def extract_people(title: str, summary: str, body: str) -> list[str]:
+    """Pull published person names from crime/news copy (often defendants)."""
+    text = f"{title}. {summary}. {body}"
+    found: list[str] = []
+
+    patterns = [
+        # "John Smith, 24" / "John Smith, aged 24"
+        rf"\b({PERSON_NAME}),\s*(?:aged\s+)?\d{{1,3}}\b",
+        # "charged John Smith" / "charged with raping ... John Smith has been"
+        rf"\b(?:charged|arrested|jailed|sentenced|convicted)\s+({PERSON_NAME})\b",
+        # "John Smith was charged/arrested/jailed"
+        rf"\b({PERSON_NAME})\s+(?:was|has been|have been|were)\s+(?:charged|arrested|jailed|sentenced|convicted|remanded)\b",
+        # "defendant John Smith" / "suspect John Smith"
+        rf"\b(?:defendant|suspect|accused|offender|attacker)\s+({PERSON_NAME})\b",
+        # "named as John Smith"
+        rf"\bnamed(?:\s+in\s+court)?\s+as\s+({PERSON_NAME})\b",
+    ]
+
+    for pattern in patterns:
+        for match in re.finditer(pattern, text):
+            name = clean_text(match.group(1))
+            name = re.sub(r"^(?:Mr|Mrs|Ms|Miss|Dr)\s+", "", name)
+            if _looks_like_person(name) and name not in found:
+                found.append(name)
+
+    return found[:8]
 
 
 def find_place(text: str) -> str | None:
@@ -260,8 +363,9 @@ async def ingest(payload: IngestRequest):
         raise HTTPException(status_code=400, detail="URL did not return HTML")
 
     soup = BeautifulSoup(response.text, "html.parser")
-    title, summary, published = extract_article(soup)
-    place = find_place(f"{title}. {summary}")
+    title, summary, published, body_text = extract_article(soup)
+    place = find_place(f"{title}. {summary}. {body_text}")
+    people = extract_people(title, summary, body_text)
 
     lat = lng = None
     if place:
@@ -275,6 +379,7 @@ async def ingest(payload: IngestRequest):
         source=source_from_url(url),
         title=title,
         summary=summary,
+        peopleInvolved=people,
         locationLabel=place,
         lat=lat,
         lng=lng,

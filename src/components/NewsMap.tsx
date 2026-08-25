@@ -62,6 +62,12 @@ export default function NewsMap({ incidents }: Props) {
                   {item.summary}
                 </p>
               ) : null}
+              {item.peopleInvolved?.length ? (
+                <p className="text-[12px] leading-snug text-[var(--ink)]">
+                  <span className="font-semibold">Named:</span>{" "}
+                  {item.peopleInvolved.join(", ")}
+                </p>
+              ) : null}
             </div>
           </Popup>
         </Marker>

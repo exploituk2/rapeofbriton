@@ -17,9 +17,15 @@ export async function listIncidents(): Promise<NewsIncident[]> {
   await ensureStore();
   const raw = await fs.readFile(DATA_PATH, "utf8");
   const parsed = JSON.parse(raw) as NewsIncident[];
-  return parsed.sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-  );
+  return parsed
+    .map((item) => ({
+      ...item,
+      peopleInvolved: item.peopleInvolved ?? [],
+    }))
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
 }
 
 export async function getIncidentById(
