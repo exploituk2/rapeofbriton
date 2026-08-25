@@ -84,8 +84,35 @@ INGEST_BOT_URL=http://127.0.0.1:8001
 
 If the Python bot is down, Next.js falls back to built-in ingest automatically.
 
-## Notes
+## Ingest security
 
-- Only metadata is stored (title, short summary, URL, location, named people)
-- Some sites block scrapers or return app shells (especially X/Twitter)
-- Public insert/update RLS is enabled so visitors can add URLs — tighten later if spam appears
+Public URL adds are protected by:
+
+- **Rate limits** — default 8/hour and 30/day per IP
+- **Ban list** — block exact URLs, domains, or prefixes
+- **Honeypot field** — silent reject for simple bots
+- **Static blocks** — common URL shorteners
+
+### Ban a domain or URL (admin)
+
+1. Set `INGEST_ADMIN_SECRET` in Vercel (long random string)
+2. Call the admin API:
+
+```bash
+# Ban a domain
+curl -X POST https://YOUR-SITE.vercel.app/api/admin/bans ^
+  -H "Content-Type: application/json" ^
+  -H "x-admin-secret: YOUR_SECRET" ^
+  -d "{\"banType\":\"domain\",\"value\":\"spam.com\",\"reason\":\"spam\"}"
+
+# Ban one URL
+curl -X POST https://YOUR-SITE.vercel.app/api/admin/bans ^
+  -H "Content-Type: application/json" ^
+  -H "x-admin-secret: YOUR_SECRET" ^
+  -d "{\"banType\":\"url\",\"value\":\"https://evil.example/page\",\"reason\":\"abuse\"}"
+
+# List bans
+curl https://YOUR-SITE.vercel.app/api/admin/bans -H "x-admin-secret: YOUR_SECRET"
+```
+
+Optional env: `BANNED_DOMAINS=a.com,b.com`, `INGEST_HOURLY_LIMIT`, `INGEST_DAILY_LIMIT`.

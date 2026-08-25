@@ -28,6 +28,7 @@ export default function HomeClient() {
   const [tab, setTab] = useState<Tab>("map");
   const [incidents, setIncidents] = useState<NewsIncident[]>([]);
   const [url, setUrl] = useState("");
+  const [honeypot, setHoneypot] = useState("");
   const [status, setStatus] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [locationTarget, setLocationTarget] = useState<NewsIncident | null>(
@@ -85,7 +86,7 @@ export default function HomeClient() {
       const res = await fetch("/api/ingest", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: trimmed }),
+        body: JSON.stringify({ url: trimmed, website: honeypot }),
       });
       const payload = await res.json();
 
@@ -255,6 +256,17 @@ export default function HomeClient() {
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
                     className="min-h-11 min-w-0 flex-1 rounded-xl border border-[var(--line)] bg-white/80 px-3.5 py-2.5 text-base outline-none transition placeholder:text-[var(--ink-soft)]/60 focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20 sm:text-sm"
+                  />
+                  {/* Honeypot: hidden from people, bots often fill it */}
+                  <input
+                    type="text"
+                    name="website"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={honeypot}
+                    onChange={(e) => setHoneypot(e.target.value)}
+                    className="absolute -left-[9999px] h-0 w-0 opacity-0"
+                    aria-hidden
                   />
                   <button
                     type="submit"
