@@ -32,7 +32,7 @@ INGEST_BOT_URL=https://YOUR-BOT.onrender.com
 
 Notes:
 - Free Render apps **sleep after ~15 minutes** idle (first request can take 30–60s)
-- Keep `NEXT_PUBLIC_SUPABASE_*` set so stories still save
+- Keep `SUPABASE_URL` and `SUPABASE_ANON_KEY` set so stories still save
 - If the bot is asleep/down, Next.js falls back to built-in ingest
 
 ### Other free-ish options
@@ -51,8 +51,8 @@ Avoid trying to run `uvicorn` on Vercel itself — it only supports serverless f
 In the Vercel project → Settings → Environment Variables, add:
 
 ```env
-NEXT_PUBLIC_SUPABASE_URL=https://jmpncxhcqlqjxyoteacb.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=<your anon key>
+SUPABASE_URL=https://jmpncxhcqlqjxyoteacb.supabase.co
+SUPABASE_ANON_KEY=<your anon key>
 ```
 
 Do **not** set `INGEST_BOT_URL` on Vercel (that forces a local Python bot).

@@ -55,7 +55,7 @@ function requireRemoteStore(): void {
   if (isSupabaseConfigured()) return;
   if (process.env.VERCEL) {
     throw new Error(
-      "Supabase is not configured on Vercel. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY, then redeploy.",
+      "Supabase is not configured on Vercel. Add SUPABASE_URL and SUPABASE_ANON_KEY, then redeploy.",
     );
   }
 }
