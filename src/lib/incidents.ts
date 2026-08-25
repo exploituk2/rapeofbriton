@@ -51,6 +51,15 @@ function toRow(incident: NewsIncident) {
   };
 }
 
+function requireRemoteStore(): void {
+  if (isSupabaseConfigured()) return;
+  if (process.env.VERCEL) {
+    throw new Error(
+      "Supabase is not configured on Vercel. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY, then redeploy.",
+    );
+  }
+}
+
 async function ensureStore(): Promise<void> {
   await fs.mkdir(path.dirname(DATA_PATH), { recursive: true });
   try {
@@ -87,6 +96,7 @@ async function listRemote(): Promise<NewsIncident[]> {
 }
 
 export async function listIncidents(): Promise<NewsIncident[]> {
+  requireRemoteStore();
   if (isSupabaseConfigured()) return listRemote();
   return listLocal();
 }
@@ -94,6 +104,7 @@ export async function listIncidents(): Promise<NewsIncident[]> {
 export async function getIncidentById(
   id: string,
 ): Promise<NewsIncident | null> {
+  requireRemoteStore();
   if (isSupabaseConfigured()) {
     const supabase = getSupabase();
     const { data, error } = await supabase
@@ -112,6 +123,7 @@ export async function getIncidentById(
 export async function upsertIncident(
   incident: NewsIncident,
 ): Promise<NewsIncident> {
+  requireRemoteStore();
   const normalized: NewsIncident = {
     ...incident,
     peopleInvolved: incident.peopleInvolved ?? [],
