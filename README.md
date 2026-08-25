@@ -1,49 +1,57 @@
 # Rape of Briton
 
-Next.js map app (OpenStreetMap) plus a Python bot that turns pasted news URLs into map pins.
+Next.js map app with OpenStreetMap. Paste a news URL to add a story, location pin, and named people.
 
 ## Stack
 
-- **Next.js** — UI, OpenStreetMap via Leaflet, APIs
-- **Python FastAPI bot** — fetch article HTML, extract title/summary, find UK place, geocode with Nominatim
-- **Local JSON store** — `data/incidents.json` (MVP; easy to swap for Supabase later)
+- **Next.js on Vercel** — UI + built-in URL ingest (no separate Python server required)
+- **Supabase** — persistent `news_incidents` storage for web users
+- **Optional local Python bot** — `bot/` for offline/dev scraping if you want it
+
+## Why not a Python bot on Vercel?
+
+Vercel runs serverless functions, not a long-lived `uvicorn` process. Ingest now lives in `/api/ingest` inside Next.js so production users can add URLs without a second host.
+
+## Vercel env vars
+
+In the Vercel project → Settings → Environment Variables, add:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://jmpncxhcqlqjxyoteacb.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<your anon key>
+```
+
+Do **not** set `INGEST_BOT_URL` on Vercel (that forces a local Python bot).
+
+Redeploy after saving env vars.
 
 ## Run locally
 
-### 1. Python ingest bot
-
 ```bash
-cd bot
-python -m venv .venv
-.\.venv\Scripts\activate
-pip install -r requirements.txt
-uvicorn main:app --reload --port 8000
-```
-
-### 2. Next.js app
-
-```bash
+cp .env.example .env.local
+# fill in Supabase anon key
 npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000), paste a BBC / GB News (or similar) article URL, and click **Add to map**.
+Optional Python bot (local only):
 
-## How ingest works
+```bash
+cd bot
+.\.venv\Scripts\activate
+uvicorn main:app --reload --port 8001
+```
 
-1. Browser posts the URL to `/api/ingest`
-2. Next.js forwards it to the bot at `http://127.0.0.1:8000/ingest`
-3. Bot fetches the page, reads Open Graph / meta tags, looks for a UK place name, geocodes it
-4. Next.js saves the result into `data/incidents.json` and the map updates
-
-Optional env:
+Then in `.env.local`:
 
 ```env
-INGEST_BOT_URL=http://127.0.0.1:8000
+INGEST_BOT_URL=http://127.0.0.1:8001
 ```
+
+If the Python bot is down, Next.js falls back to built-in ingest automatically.
 
 ## Notes
 
-- Only metadata is stored (title, short summary, URL, location) — not full article text
-- Respect site terms of use; this is for personal/local tooling
-- Some sites block scrapers; if ingest fails, try another URL or improve the bot selectors
+- Only metadata is stored (title, short summary, URL, location, named people)
+- Some sites block scrapers or return app shells (especially X/Twitter)
+- Public insert/update RLS is enabled so visitors can add URLs — tighten later if spam appears
