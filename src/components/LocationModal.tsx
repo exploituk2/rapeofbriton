@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useState, type FormEvent } from "react";
+import { lookupKnownPlace } from "@/lib/places";
 import type { NewsIncident } from "@/lib/types";
 
 type GeocodeHit = {
@@ -31,6 +32,21 @@ export default function LocationModal({ incident, onClose, onSaved }: Props) {
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
 
+  async function resolvePlace(q: string): Promise<GeocodeHit | null> {
+    const known = lookupKnownPlace(q);
+    if (known) {
+      return { label: known.label, lat: known.lat, lng: known.lng };
+    }
+
+    const res = await fetch(`/api/geocode?q=${encodeURIComponent(q)}`);
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error ?? "Search failed");
+    }
+    const hits = data as GeocodeHit[];
+    return hits[0] ?? null;
+  }
+
   async function search(event: FormEvent) {
     event.preventDefault();
     const q = query.trim();
@@ -51,44 +67,68 @@ export default function LocationModal({ incident, onClose, onSaved }: Props) {
       const hits = data as GeocodeHit[];
       setResults(hits);
       if (hits.length === 0) {
-        setError("No places found in the UK or Ireland. Try a town or city name.");
+        setError(
+          "No places found in the UK or Ireland. Try a town or city name.",
+        );
       } else {
         setSelected(hits[0]);
       }
     } catch {
-      setError("Search failed");
+      const known = lookupKnownPlace(q);
+      if (known) {
+        const hit = { label: known.label, lat: known.lat, lng: known.lng };
+        setResults([hit]);
+        setSelected(hit);
+      } else {
+        setError("Search failed");
+      }
     } finally {
       setBusy(false);
     }
   }
 
   async function save() {
-    if (!selected) {
-      setError("Search and pick a place first.");
-      return;
-    }
+    const q = query.trim();
+    let place = selected;
 
     setBusy(true);
     setError(null);
 
     try {
+      if (!place && q) {
+        place = await resolvePlace(q);
+        if (place) {
+          setSelected(place);
+          setResults((prev) => (prev.length ? prev : [place as GeocodeHit]));
+        }
+      }
+
+      if (!place) {
+        setError("Search and pick a place first (e.g. Dublin).");
+        return;
+      }
+
       const res = await fetch(`/api/incidents/${incident.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          locationLabel: query.trim() || selected.label.split(",")[0],
-          lat: selected.lat,
-          lng: selected.lng,
+          locationLabel: q || place.label.split(",")[0],
+          lat: place.lat,
+          lng: place.lng,
         }),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError(data.error ?? "Could not save location");
+        setError(
+          typeof data.error === "string"
+            ? data.error
+            : `Could not save location (${res.status})`,
+        );
         return;
       }
       onSaved(data as NewsIncident);
     } catch {
-      setError("Could not save location");
+      setError("Could not save location — check you are online and try again.");
     } finally {
       setBusy(false);
     }
@@ -117,7 +157,8 @@ export default function LocationModal({ incident, onClose, onSaved }: Props) {
           Add location
         </h2>
         <p className="mt-1 text-sm text-[var(--ink-soft)]">
-          No map pin was found. Search a UK or Ireland place to drop one.
+          Type a place (e.g. Dublin), press Search, then Save pin — or Save
+          directly after typing a known city.
         </p>
         <p className="mt-3 line-clamp-2 text-sm font-semibold text-[var(--ink)]">
           {incident.title}
@@ -185,7 +226,7 @@ export default function LocationModal({ incident, onClose, onSaved }: Props) {
           <button
             type="button"
             onClick={() => void save()}
-            disabled={busy || !selected}
+            disabled={busy || (!selected && !query.trim())}
             className="min-h-11 rounded-xl bg-[var(--accent)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--accent-strong)] disabled:cursor-not-allowed disabled:opacity-55"
           >
             Save pin
