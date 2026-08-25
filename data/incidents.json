@@ -140,7 +140,10 @@
     "lng": -0.1277653,
     "publishedAt": "2026-08-20T21:48:44+00:00",
     "createdAt": "2026-08-24T23:40:54.432912+00:00",
-    "peopleInvolved": []
+    "peopleInvolved": [
+      "Baryalai Rahimi",
+      "Mirebadurahman Sadat"
+    ]
   },
   {
     "id": "22e231fb-d7b6-4db2-bc06-1ca297d90d53",
@@ -153,7 +156,11 @@
     "lng": -0.1400561,
     "publishedAt": "2026-07-15T14:32:19.000Z",
     "createdAt": "2026-08-24T23:33:47.405031+00:00",
-    "peopleInvolved": []
+    "peopleInvolved": [
+      "Ibrahim Alshafe",
+      "Abdulla Ahmadi",
+      "Karin Al-Danasurt"
+    ]
   },
   {
     "id": "cb6d6d3d-2161-4144-bf0c-1660f79a55f3",
@@ -179,7 +186,9 @@
     "lng": -1.2578499,
     "publishedAt": "2025-07-31T18:00:04+00:00",
     "createdAt": "2026-08-24T23:31:43.177710+00:00",
-    "peopleInvolved": []
+    "peopleInvolved": [
+      "Khaliz Alshimery"
+    ]
   },
   {
     "id": "ce9f9e48-f5ce-4be1-b850-2ed693b1f19b",
@@ -205,7 +214,9 @@
     "lng": -0.3373046,
     "publishedAt": "2026-08-16T20:59:39+00:00",
     "createdAt": "2026-08-24T22:48:12.960654+00:00",
-    "peopleInvolved": []
+    "peopleInvolved": [
+      "Bruke Desalagne"
+    ]
   },
   {
     "id": "24aae95b-3221-4e07-9257-6331309e6dba",
@@ -218,7 +229,10 @@
     "lng": -0.1277653,
     "publishedAt": "2026-08-20T14:48:30+0100",
     "createdAt": "2026-08-24T22:43:20.568410+00:00",
-    "peopleInvolved": []
+    "peopleInvolved": [
+      "Baryalai Rahimi",
+      "Mirebadurahman Sadat"
+    ]
   },
   {
     "id": "37464cd8-ac33-406b-89b0-8fcadeb24abe",
@@ -231,6 +245,8 @@
     "lng": -2.2324547,
     "publishedAt": null,
     "createdAt": "2026-08-24T22:42:30.885746+00:00",
-    "peopleInvolved": []
+    "peopleInvolved": [
+      "Abdul Shinwari"
+    ]
   }
 ]

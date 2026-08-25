@@ -284,10 +284,14 @@ def extract_people(title: str, summary: str, body: str) -> list[str]:
     patterns = [
         # "John Smith, 24" / "John Smith, aged 24"
         rf"\b({PERSON_NAME}),\s*(?:aged\s+)?\d{{1,3}}\b",
-        # "charged John Smith" / "charged with raping ... John Smith has been"
+        # "John Smith, 25, and Jane Doe, 29"
+        rf"\b({PERSON_NAME}),\s*\d{{1,3}},\s*and\s+({PERSON_NAME}),\s*\d{{1,3}}\b",
+        # "charged John Smith" / "jailed John Smith"
         rf"\b(?:charged|arrested|jailed|sentenced|convicted)\s+({PERSON_NAME})\b",
         # "John Smith was charged/arrested/jailed"
         rf"\b({PERSON_NAME})\s+(?:was|has been|have been|were)\s+(?:charged|arrested|jailed|sentenced|convicted|remanded)\b",
+        # "John Smith jailed" / "John Smith sentenced"
+        rf"\b({PERSON_NAME})\s+(?:jailed|sentenced|convicted|remanded)\b",
         # "defendant John Smith" / "suspect John Smith"
         rf"\b(?:defendant|suspect|accused|offender|attacker)\s+({PERSON_NAME})\b",
         # "named as John Smith"
@@ -296,10 +300,13 @@ def extract_people(title: str, summary: str, body: str) -> list[str]:
 
     for pattern in patterns:
         for match in re.finditer(pattern, text):
-            name = clean_text(match.group(1))
-            name = re.sub(r"^(?:Mr|Mrs|Ms|Miss|Dr)\s+", "", name)
-            if _looks_like_person(name) and name not in found:
-                found.append(name)
+            for group in match.groups():
+                if not group:
+                    continue
+                name = clean_text(group)
+                name = re.sub(r"^(?:Mr|Mrs|Ms|Miss|Dr)\s+", "", name)
+                if _looks_like_person(name) and name not in found:
+                    found.append(name)
 
     return found[:8]
 
